@@ -1,0 +1,105 @@
+{
+  "info": {
+    "name": "ResuMatch API",
+    "description": "Complete collection for testing ResuMatch endpoints. Register a user first, copy the token to the collection variable `token`, then run everything else.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "resumeId", "value": "" },
+    { "key": "jobId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Register",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Aman Patel\",\n  \"email\": \"aman@test.com\",\n  \"password\": \"password123\"\n}"
+        }
+      }
+    },
+    {
+      "name": "2. Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"aman@test.com\",\n  \"password\": \"password123\"\n}"
+        }
+      }
+    },
+    {
+      "name": "3. Upload Resume",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": { "raw": "{{baseUrl}}/api/resumes/upload", "host": ["{{baseUrl}}"], "path": ["api", "resumes", "upload"] },
+        "body": {
+          "mode": "formdata",
+          "formdata": [{ "key": "file", "type": "file", "src": [] }]
+        }
+      }
+    },
+    {
+      "name": "4. List Resumes",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": { "raw": "{{baseUrl}}/api/resumes", "host": ["{{baseUrl}}"], "path": ["api", "resumes"] }
+      }
+    },
+    {
+      "name": "5. Create Job Description",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/job-descriptions", "host": ["{{baseUrl}}"], "path": ["api", "job-descriptions"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Java Backend Developer Intern\",\n  \"company\": \"CoolStartup Inc\",\n  \"content\": \"We are looking for a Java Spring Boot developer with solid experience in REST APIs, JWT authentication, PostgreSQL, Redis caching, Docker, and microservices architecture. You should understand CI/CD pipelines, GitHub Actions, and have experience writing clean unit tests with JUnit and Mockito. Knowledge of AWS (EC2, S3, Lambda), Kubernetes, and message queues like RabbitMQ is a big plus. We use agile scrum methodology and expect strong problem-solving with data structures and algorithms.\"\n}"
+        }
+      }
+    },
+    {
+      "name": "6. List Job Descriptions",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": { "raw": "{{baseUrl}}/api/job-descriptions", "host": ["{{baseUrl}}"], "path": ["api", "job-descriptions"] }
+      }
+    },
+    {
+      "name": "7. Analyze Match (The Magic)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/matches/analyze", "host": ["{{baseUrl}}"], "path": ["api", "matches", "analyze"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"resumeId\": 1,\n  \"jobDescriptionId\": 1\n}"
+        }
+      }
+    },
+    {
+      "name": "8. List All Matches",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": { "raw": "{{baseUrl}}/api/matches", "host": ["{{baseUrl}}"], "path": ["api", "matches"] }
+      }
+    }
+  ]
+}

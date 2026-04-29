@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: resumatch
+
+  # Database
+  datasource:
+    url: jdbc:postgresql://localhost:5432/resumatch_db
+    username: ${DB_USERNAME:resumatch_user}
+    password: ${DB_PASSWORD:resumatch_pass}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  # File upload limits
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+# Server
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# Application-specific config
+app:
+  jwt:
+    # Must be at least 256 bits (32 chars). Override in production!
+    secret: ${JWT_SECRET:change_this_secret_in_production_its_at_least_32_chars_long_ok}
+    expiration-ms: 86400000  # 24 hours
+
+  upload:
+    dir: ${UPLOAD_DIR:./uploads}
+
+# Swagger / OpenAPI
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.resumatch: DEBUG
+    org.springframework.security: INFO
