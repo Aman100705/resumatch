@@ -4,7 +4,7 @@ spring:
 
   # Database
   datasource:
-    url: jdbc:postgresql://localhost:5432/resumatch_db
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/resumatch_db}
     username: ${DB_USERNAME:resumatch_user}
     password: ${DB_PASSWORD:resumatch_pass}
     driver-class-name: org.postgresql.Driver
