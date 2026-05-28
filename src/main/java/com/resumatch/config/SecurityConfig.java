@@ -4,6 +4,7 @@ import com.resumatch.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -37,6 +38,8 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
+                // Allow all CORS preflight requests
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Public
                 .requestMatchers(
                         "/api/auth/**",
@@ -77,10 +80,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cors = new CorsConfiguration();
-        cors.setAllowedOriginPatterns(List.of("*"));
+        cors.setAllowedOriginPatterns(List.of(
+                "http://localhost:3000",
+                "https://*.vercel.app"
+        ));
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cors.setAllowedHeaders(List.of("*"));
+        cors.setExposedHeaders(List.of("Authorization"));
         cors.setAllowCredentials(true);
+        cors.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cors);
