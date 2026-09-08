@@ -9,13 +9,13 @@ import com.resumatch.repository.MatchAnalysisRepository;
 import com.resumatch.util.KeywordExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.text.similarity.JaccardSimilarity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Core scoring service. Given a resume and a job description,
@@ -40,6 +40,8 @@ public class MatchAnalysisService {
     private static final double KEYWORD_WEIGHT = 0.50;
     private static final double SKILLS_WEIGHT  = 0.30;
     private static final double TEXT_WEIGHT    = 0.20;
+
+    private static final Pattern WORD_SPLIT = Pattern.compile("\\W+");
 
     @Transactional
     public MatchAnalysis analyze(User user, Long resumeId, Long jdId) {
@@ -129,11 +131,38 @@ public class MatchAnalysisService {
 
     // --- Helpers ---
 
+    /**
+     * Jaccard similarity over the two documents' word sets:
+     * |intersection| / |union|.
+     *
+     * Note: this is deliberately NOT Apache Commons Text's JaccardSimilarity.
+     * That implementation compares sets of *characters*, so any two English
+     * documents score ~0.85-0.95 regardless of content — a matching JD and an
+     * unrelated one came out only ~10 points apart. Comparing word sets gives
+     * the component real discriminatory power.
+     */
     private double computeTextSimilarity(String a, String b) {
-        if (a.isBlank() || b.isBlank()) return 0.0;
-        JaccardSimilarity jaccard = new JaccardSimilarity();
-        Double sim = jaccard.apply(a.toLowerCase(), b.toLowerCase());
-        return sim == null ? 0.0 : sim;
+        if (a == null || b == null || a.isBlank() || b.isBlank()) return 0.0;
+
+        Set<String> wordsA = toWordSet(a);
+        Set<String> wordsB = toWordSet(b);
+        if (wordsA.isEmpty() || wordsB.isEmpty()) return 0.0;
+
+        Set<String> intersection = new HashSet<>(wordsA);
+        intersection.retainAll(wordsB);
+
+        Set<String> union = new HashSet<>(wordsA);
+        union.addAll(wordsB);
+
+        return (double) intersection.size() / union.size();
+    }
+
+    private Set<String> toWordSet(String text) {
+        Set<String> words = new HashSet<>();
+        for (String token : WORD_SPLIT.split(text.toLowerCase())) {
+            if (token.length() >= 2) words.add(token);
+        }
+        return words;
     }
 
     private boolean isGenericWord(String k) {
